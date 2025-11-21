@@ -4,7 +4,7 @@ import { User } from "../models/user.models.js";
 import uploadOnCloudinary from "../utils/cloudinary.js";
 import ApiResponses from "../utils/ApiResponses.js";
 
-const registerUser = asyncHandler( async (req, res) => {
+const registerUser = asyncHandler(async (req, res) => {
     // get the user data 
     // validation - check for empty
     // check if user is already exist 
@@ -15,16 +15,16 @@ const registerUser = asyncHandler( async (req, res) => {
     // check for user creation
     // return the response
 
-    const {fullName, email, username, password} = req.body;
+    const { fullName, email, username, password } = req.body;
 
     if (
-        [fullName, email, username, password].some(field => field?.trim() === "") 
+        [fullName, email, username, password].some(field => field?.trim() === "")
     ) {
         throw new ApiErros(400, "All fields are required");
     }
 
-    const existedUser = User.findOne({
-        $or: [ { username }, { email } ]
+    const existedUser = await User.findOne({
+        $or: [{ username }, { email }]
     });
 
     if (existedUser) {
@@ -33,7 +33,15 @@ const registerUser = asyncHandler( async (req, res) => {
 
     // handle the files
     const avatarLocalPath = req.files?.avatar[0]?.path;
-    const coverImageLocalPath = req.files?.coverImage[0]?.path; 
+    // const coverImageLocalPath = req.files?.coverImage[0]?.path; 
+    // this will throw undefined error
+
+    let coverImageLocalPath;
+    if (req.files &&
+        Array.isArray(req.files.coverImage) &&
+        req.files.coverImage.length > 0) {
+        coverImageLocalPath = req.files.coverImage[0].path;
+    }
 
     if (!avatarLocalPath) {
         throw new ApiErros(400, "Avatar is requied");
@@ -64,7 +72,7 @@ const registerUser = asyncHandler( async (req, res) => {
     }
 
     return res.status(201).json(
-        new ApiResponses(200, "Created the user record successfully",createdUser)
+        new ApiResponses(200, "Created the user record successfully", createdUser)
     )
 
 });

@@ -1,6 +1,11 @@
-import mongoose, {Schema} from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
+import dotenv from 'dotenv';
+
+dotenv.config({
+    path: "./.env"
+});
 
 const userSchema = new Schema(
     {
@@ -42,15 +47,15 @@ const userSchema = new Schema(
             type: String,
             required: [true, 'Password is required']
         },
-        refreshTokens: {
+        refreshToken: {
             type: String
-        } 
-    }, {timestamps: true}
+        }
+    }, { timestamps: true }
 );
 
 // encyption of the password
 userSchema.pre("save", async function (next) {
-    if(!this.isModified('password')) return next();
+    if (!this.isModified('password')) return next();
     this.password = await bcrypt.hash(this.password, 10);
     next();
 })
@@ -61,7 +66,7 @@ userSchema.methods.isPasswordCorrect = async function (password) {
 }
 
 // JWT setup for access token and refresh token
-userSchema.methods.generateAccessToken = function() {
+userSchema.methods.generateAccessToken = function () {
     return jwt.sign(
         {
             _id: this._id,
@@ -76,7 +81,7 @@ userSchema.methods.generateAccessToken = function() {
     )
 }
 
-userSchema.methods.generateRefreshToken = function() {
+userSchema.methods.generateRefreshToken = function () {
     return jwt.sign(
         {
             _id: this._id

@@ -5,6 +5,11 @@ import uploadOnCloudinary from "../utils/cloudinary.js";
 import ApiResponses from "../utils/ApiResponses.js";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
+import dotenv from "dotenv";
+
+dotenv.config({
+    path: "./.env"
+});
 
 // generate access and refresh token
 const getAccessTokenAndRefreshToken = async (userId) => {
